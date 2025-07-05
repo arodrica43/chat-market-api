@@ -43,5 +43,5 @@ async def create_user(user: User):
         result = collection.insert_one(user_dict)
         return {"id": str(result.inserted_id), "message": "User stored successfully"}
     except Exception as e:
-        return {"message": "Something went wrong: {}".format(e)}¨
+        return {"message": "Something went wrong: {}".format(e)}
     
