@@ -38,6 +38,10 @@ def read_item(item_id: int, q: Optional[str] = None):
 # Route to store the item
 @app.post("/users")
 async def create_user(user: User):
-    user_dict = user.dict()  # Convert Pydantic model to dict
-    result = await collection.insert_one(user_dict)
-    return {"id": str(result.inserted_id), "message": "User stored successfully"}
+    try:
+        user_dict = user.dict()  # Convert Pydantic model to dict
+        result = await collection.insert_one(user_dict)
+        return {"id": str(result.inserted_id), "message": "User stored successfully"}
+    except Exception as e:
+        return {"message": e}
+    
