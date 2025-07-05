@@ -41,7 +41,7 @@ async def create_user(user: User):
     try:
         user_dict = user.dict()  # Convert Pydantic model to dict
         result = collection.insert_one(user_dict)
-        return {"message": "User stored successfully"}
+        return {"id": str(result.inserted_id), "message": "User stored successfully"}
     except Exception as e:
-        return {"message": "Something went wrong"}
+        return {"message": "Something went wrong: {}".format(e)}¨
     
