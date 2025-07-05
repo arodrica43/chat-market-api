@@ -1,24 +1,30 @@
 from typing import Optional
 
 from fastapi import FastAPI
-
+from pydantic import BaseModel
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 import os
 
+app = FastAPI()
+
 uri = os.getenv("MONGO_URI")
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
+db = client["chat_marketplace"]
+collection = db["user"]  # your MongoDB collection
 
-# Send a ping to confirm a successful connection
-
-app = FastAPI()
-
+# Define a Pydantic model for validation
+class User(BaseModel):
+    name: str
+    email: str
+    password: str
 
 @app.get("/")
 async def root():
+    # Send a ping to confirm a successful connection
     try:
         client.admin.command('ping')
         return {"message": "Pinged your deployment. You successfully connected to MongoDB!"}
@@ -28,3 +34,10 @@ async def root():
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Optional[str] = None):
     return {"item_id": item_id, "q": q}
+
+# Route to store the item
+@app.post("/users")
+async def create_user(user: User):
+    user_dict = user.dict()  # Convert Pydantic model to dict
+    result = await collection.insert_one(user_dict)
+    return {"id": str(result.inserted_id), "message": "User stored successfully"}
